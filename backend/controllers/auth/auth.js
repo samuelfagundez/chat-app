@@ -5,7 +5,22 @@ const createUser = async (req, res = response) => {
   try {
     const { email, password } = req.body;
 
-    res.json({});
+    const emailTaken = await User.findOne({ email });
+
+    if (emailTaken) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Email is already taken",
+      });
+    }
+
+    const user = new User(req.body);
+
+    await user.save();
+
+    res.json({
+      user,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -13,11 +28,6 @@ const createUser = async (req, res = response) => {
       msg: "Please contact an administrator.",
     });
   }
-
-  res.json({
-    ok: true,
-    usuario: "ABC",
-  });
 };
 
 const login = async (req, res) => {

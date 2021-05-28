@@ -5,7 +5,7 @@ const { validateFields } = require("../middlewares/validate-fields");
 
 const router = Router();
 
-// Crear nuevos usuarios
+// Create new users
 router.post(
   "/new",
   [
