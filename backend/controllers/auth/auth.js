@@ -42,10 +42,44 @@ const createUser = async (req, res = response) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  res.json({
-    ok: true,
-    msg: "login",
-  });
+  try {
+    const dbUser = await User.findOne({ email });
+
+    if (!dbUser) {
+      return res.status(404).json({
+        ok: false,
+        msg: "Failure while loggin in",
+      });
+    }
+
+    // Validar el password
+    const validPassword = bcrypt.compareSync(
+      password.toString(),
+          dbUser.password
+    );
+
+    if (!validPassword) {
+      return res.status(404).json({
+        ok: false,
+        msg: "Failure while loggin in",
+      });
+    }
+
+    // Generar JWT
+    const token = await generateJWT(dbUser.id);
+
+    res.json({
+      ok: true,
+      user: dbUser,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Please contact an administrator.",
+    });
+  }
 };
 
 const renewToken = async (req, res) => {
